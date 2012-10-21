@@ -20,9 +20,17 @@ def root_handle(handle):
         newFile = request.files['data']
         id = uuid.uuid1().hex
         try:
+            ## Saving the file
             f = open(repoName+"/files/"+id, 'w')
             f.write(newFile.stream.read())
             f.close()
+
+            repo = Repo(repoName)
+            index = repo.index
+
+            index.add([repoName+"/files/"+id])
+            commit = index.commit("added file with uuid "+id)
+
         except:
             pass
 
@@ -33,10 +41,7 @@ def root_handle(handle):
     else:
         return "Getting handle: %s recent version" % (handle)
 
-### Handle the creation of new files
-def createFile(name, data):
-    pass
-
+## Get the repoName from our config
 def parseConfig():
     try:
         global repoName
