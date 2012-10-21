@@ -24,11 +24,15 @@ def root_handle(handle):
             f = open(repoName+"/files/"+id, 'w')
             f.write(newFile.stream.read())
             f.close()
+            fname = open(repoName+"/files/"+id+'-filename', 'w')
+            fname.write(newFile.filename)
+            fname.close()
 
             repo = Repo(repoName)
             index = repo.index
 
             index.add([repoName+"/files/"+id])
+            index.add([repoName+"/files/"+id+'-filename'])
             commit = index.commit("added file with uuid "+id)
 
         except:
@@ -40,7 +44,12 @@ def root_handle(handle):
         return "SAVING"
     else:
         f = open(repoName + '/files/' + handle)
-        return send_file(f, as_attachment=True)
+        filename = getFilename(handle)
+        return send_file(f, as_attachment=True, attachment_filename=filename)
+
+def getFilename(handle):
+    fname = open(repoName + '/files/' + handle + "-filename")
+    return fname.readline()
 
 ## Get the repoName from our config
 def parseConfig():
