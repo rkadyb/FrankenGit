@@ -4,3 +4,4 @@ venv/
 *.swn
 *.swm
 document-store.git
+document-store
