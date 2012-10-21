@@ -16,7 +16,8 @@ def root_handle(handle):
     else:
         return "Getting handle: %s recent version" % (handle)
 
-@app.route('/new/'):
+@app.route('/new/')
+def new_handle():
     return "new file handle"
 
 if __name__ == '__main__':
