@@ -1,0 +1,8 @@
+Flask==0.9
+GitPython==0.3.2.RC1
+Jinja2==2.6
+Werkzeug==0.8.3
+async==0.6.1
+gitdb==0.5.4
+smmap==0.8.2
+wsgiref==0.1.2
