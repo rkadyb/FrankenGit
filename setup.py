@@ -6,7 +6,8 @@ from git import *
 ## you want your document git repo to exist, for exampte:
 ## '/Users/rkadyb/document-store.git
 def initialize(path):
-    repo = Repo.init(path, bare=True)
+    repo = Repo.init(path)
+    ##repo = Repo.init(path, bare=True)
     filesDirCreated = False
     try:
         os.mkdir(path+"/files")
@@ -14,7 +15,7 @@ def initialize(path):
     except:
         ## Nothing for now
         pass
-    return repo.bare and filesDirCreated
+    return not(repo.bare) and filesDirCreated
 
 def addDocRepoToConfig(docRepoPath):
     docRepoPath = os.path.expanduser(docRepoPath)
