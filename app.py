@@ -1,5 +1,6 @@
 from flask import Flask, request
 from git import *
+import uuid
 app = Flask(__name__)
 
 repoName = None
@@ -15,9 +16,18 @@ def get_version(handle, version):
 @app.route('/<handle>', methods=['GET', 'POST'])
 def root_handle(handle):
     if handle == "new":
-        
-        return "new file handle"
-        ## TODO return handle
+        global repoName
+        newFile = request.files['data']
+        id = uuid.uuid1().hex
+        try:
+            f = open(repoName+"/files/"+id, 'w')
+            f.write(newFile.stream.read())
+            f.close()
+        except:
+            pass
+
+        return id
+
     if request.method == "POST":
         return "SAVING"
     else:

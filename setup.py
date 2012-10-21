@@ -7,7 +7,14 @@ from git import *
 ## '/Users/rkadyb/document-store.git
 def initialize(path):
     repo = Repo.init(path, bare=True)
-    return repo.bare
+    filesDirCreated = False
+    try:
+        os.mkdir(path+"/files")
+        filesDirCreated = True
+    except:
+        ## Nothing for now
+        pass
+    return repo.bare and filesDirCreated
 
 def addDocRepoToConfig(docRepoPath):
     docRepoPath = os.path.expanduser(docRepoPath)
@@ -31,6 +38,8 @@ if __name__ == "__main__":
     else:
         if initialize(str(sys.argv[1])):
             print("initialized an empty git repo at "+str(sys.argv[1]))
+            print("initialized the corresponding file repo at "+str(sys.argv[1])+"/files")
+
             if addDocRepoToConfig(sys.argv[1]):
                 print("Config file updated appropriately")
             else:
