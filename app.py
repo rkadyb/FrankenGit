@@ -1,4 +1,4 @@
-from flask import Flask, request
+from flask import Flask, request, send_file
 from git import *
 import uuid
 app = Flask(__name__)
@@ -39,7 +39,8 @@ def root_handle(handle):
     if request.method == "POST":
         return "SAVING"
     else:
-        return "Getting handle: %s recent version" % (handle)
+        f = open(repoName + '/files/' + handle)
+        return send_file(f, as_attachment=True)
 
 ## Get the repoName from our config
 def parseConfig():
