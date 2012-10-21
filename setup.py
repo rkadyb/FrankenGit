@@ -15,7 +15,7 @@ def addDocRepoToConfig(docRepoPath):
     success = False
     try:
         config = open("config", "w")
-        config.write("REPO: "+docRepoPath)
+        config.write(docRepoPath)
         config.close()
         success = True
     except:
