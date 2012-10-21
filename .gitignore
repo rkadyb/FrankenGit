@@ -5,3 +5,4 @@ venv/
 *.swm
 document-store.git
 document-store
+config
