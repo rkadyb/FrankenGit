@@ -1,6 +1,9 @@
 from flask import Flask, request, send_file
 from git import *
 import uuid
+import os.path
+import time
+
 app = Flask(__name__)
 
 repoName = None
@@ -15,6 +18,8 @@ def get_version(handle, version):
 
 @app.route('/<handle>', methods=['GET', 'POST'])
 def root_handle(handle):
+
+    ## Adding in a new file
     if handle == "new":
         global repoName
         newFile = request.files['data']
@@ -40,8 +45,37 @@ def root_handle(handle):
 
         return id
 
+    ## Over-writing an exiting file
     if request.method == "POST":
-        return "SAVING"
+        saved = False
+        id = str(handle)
+        newFile = request.files['data']
+
+        try:
+            ## Make sure that we are trying to update a valid file
+            if os.path.isfile(repoName+"/files/"+id):
+                f = open(repoName+"/files/"+id, 'w')
+                f.write(newFile.stream.read())
+                f.close()
+
+                repo = Repo(repoName)
+                index = repo.index
+
+                index.add([repoName+"/files/"+id])
+
+                commit = index.commit("changed file with uuid "+id+ " at "+str(time.time()))
+
+                saved = True
+
+        except:
+            ## Nothing for now
+            pass
+
+        if saved:
+            return "saved new file to "+str(id)
+        else:
+            return "could not save file"
+
     else:
         f = open(repoName + '/files/' + handle)
         filename = getFilename(handle)
