@@ -33,12 +33,7 @@ def get_version(handle, version):
         return "illegal version number"
 
     else:
-        if (v >= 0):
-            return g.show(str(hexes[v])+':files/'+id)
-        else:
-            return g.show("HEAD~"+str(abs(v))+':files/'+id)
-
-    return "Getting handle: %s version: %s" % (handle, version)
+        return g.show(str(hexes[v])+':files/'+id)
 
 @app.route('/<handle>', methods=['GET', 'POST'])
 def root_handle(handle):
