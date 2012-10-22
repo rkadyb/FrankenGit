@@ -17,9 +17,16 @@ repoName = None
 def hello_world():
     return 'Hello World!'
 
+
+@app.route('/<handle>/versions')
+def get_versions(handle):
+    return str(numSha(handle)-1)
+
+
 @app.route('/<handle>/<version>')
 def get_version(handle, version):
     return getFile(handle, version)
+
 
 @app.route('/<handle>', methods=['GET', 'POST'])
 def root_handle(handle):
@@ -31,20 +38,7 @@ def root_handle(handle):
         id = uuid.uuid1().hex
         try:
             ## Saving the file
-            f = open(repoName+"/files/"+id, 'w')
-            f.write(newFile.stream.read())
-            f.close()
-            fname = open(repoName+"/files/"+id+'-filename', 'w')
-            fname.write(newFile.filename)
-            fname.close()
-
-            repo = Repo(repoName)
-            index = repo.index
-
-            index.add([repoName+"/files/"+id])
-            index.add([repoName+"/files/"+id+'-filename'])
-            commit = index.commit("added file with uuid "+id)
-
+            saved = saveFile(newFile, id)
         except:
             pass
 
@@ -53,27 +47,12 @@ def root_handle(handle):
     ## Over-writing an exiting file
     if request.method == "POST":
         saved = False
-        id = str(handle)
         newFile = request.files['data']
 
         try:
             ## Make sure that we are trying to update a valid file
             if os.path.isfile(repoName+"/files/"+id):
-                f = open(repoName+"/files/"+id, 'w')
-                f.write(newFile.stream.read())
-                f.close()
-                fname = open(repoName+"/files/"+id+'-filename', 'w')
-                fname.write(newFile.filename)
-                fname.close()
-
-                repo = Repo(repoName)
-                index = repo.index
-
-                index.add([repoName+"/files/"+id])
-                index.add([repoName+"/files/"+id+'-filename'])
-                commit = index.commit("changed file with uuid "+id+ " at "+str(time.time()))
-
-                saved = True
+                saved = saveFile(newFile, handle)
 
         except:
             ## Nothing for now
@@ -88,9 +67,11 @@ def root_handle(handle):
     else:
         return getFile(handle)
 
+
 def getFilename(handle):
     fname = open(repoName + '/files/' + handle + "-filename")
     return fname.readline()
+
 
 def getFile(handle, version=None):
     if not version:
@@ -101,10 +82,31 @@ def getFile(handle, version=None):
         output = g.show('%s:files/%s' % (sha, handle))
         f = StringIO()
         f.write(output)
+        # reset to 0 so the read() actually does something
         f.seek(0)
 
     filename = getFilename(handle)
     return send_file(f, as_attachment=True, attachment_filename=filename)
+
+
+def saveFile(fileObj, handle):
+
+    f = open(repoName+"/files/"+handle, 'w')
+    f.write(fileObj.stream.read())
+    f.close()
+    fname = open(repoName+"/files/"+handle+'-filename', 'w')
+    fname.write(fileObj.filename)
+    fname.close()
+
+    repo = Repo(repoName)
+    index = repo.index
+
+    index.add([repoName+"/files/"+handle])
+    index.add([repoName+"/files/"+handle+'-filename'])
+    commit = index.commit("file with uuhandle "+handle+ " at "+str(time.time()))
+
+    return True
+
 
 def versionSha(handle, version=None):
     g = Git(repoName)
@@ -113,6 +115,14 @@ def versionSha(handle, version=None):
     if not version:
         version = 0
     return shas[int(version)]
+
+
+def numSha(handle, version=None):
+    g = Git(repoName)
+    shas = g.log('--pretty=%H','--follow','--','files/'+handle).split('\n')
+    print shas
+    return len(shas)
+
 
 ## Get the repoName from our config
 def parseConfig():
