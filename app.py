@@ -9,8 +9,17 @@ app = Flask(__name__)
 repoName = None
 
 @app.route('/')
-def hello_world():
-    return 'Hello World!'
+def show():
+    return 'FrankenGit is aliiiiiiiiiive'
+
+@app.route('/<handle>/versions')
+def show_versions(handle):
+    ## Get the number of versions of this file
+    global repoName
+    id = str(handle)
+    g = Git(repoName)
+    hexes = g.log('--pretty=%H', '--follow', "files/"+id).split('\n')
+    return str(len(hexes))
 
 @app.route('/<handle>/<version>')
 def get_version(handle, version):
