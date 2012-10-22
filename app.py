@@ -23,6 +23,21 @@ def show_versions(handle):
 
 @app.route('/<handle>/<version>')
 def get_version(handle, version):
+    v = int(version)
+    global repoName
+    id = str(handle)
+    g = Git(repoName)
+    hexes = g.log('--pretty=%H', '--follow', "files/"+id).split('\n')
+    
+    if not(v < abs(len(hexes))):
+        return "illegal version number"
+
+    else:
+        if (v >= 0):
+            return g.show(str(hexes[v])+':files/'+id)
+        else:
+            return g.show("HEAD~"+str(abs(v))+':files/'+id)
+
     return "Getting handle: %s version: %s" % (handle, version)
 
 @app.route('/<handle>', methods=['GET', 'POST'])
