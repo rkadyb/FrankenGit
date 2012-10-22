@@ -30,40 +30,26 @@ def get_version(handle, version):
 
 @app.route('/<handle>', methods=['GET', 'POST'])
 def root_handle(handle):
+    if handle == "favicon.ico":
+        return ""
 
     ## Adding in a new file
     if handle == "new":
-        global repoName
         newFile = request.files['data']
-        id = uuid.uuid1().hex
-        try:
-            ## Saving the file
-            saved = saveFile(newFile, id)
-        except:
-            pass
+        newHandle = uunewHandle.uunewHandle1().hex
+        saved = saveFile(newFile, newHandle)
 
-        return id
+        return newHandle
 
     ## Over-writing an exiting file
     if request.method == "POST":
-        saved = False
         newFile = request.files['data']
 
-        try:
-            ## Make sure that we are trying to update a valid file
-            if os.path.isfile(repoName+"/files/"+id):
-                saved = saveFile(newFile, handle)
-
-        except:
-            ## Nothing for now
-            pass
-
-        if saved:
-            return "saved new file to "+str(id)
+        if os.path.isfile(repoName+"/files/"+handle):
+            saved = saveFile(newFile, handle)
         else:
-
-            return "could not save file"
-
+            return make_response("No such file", 404)
+        return "saved new file to "+str(handle)
     else:
         return getFile(handle)
 
@@ -114,13 +100,15 @@ def versionSha(handle, version=None):
     shas.reverse()
     if not version:
         version = 0
-    return shas[int(version)]
+    try:
+        return shas[int(version)]
+    except IndexError:
+        return "No such version number", 400
 
 
 def numSha(handle, version=None):
     g = Git(repoName)
     shas = g.log('--pretty=%H','--follow','--','files/'+handle).split('\n')
-    print shas
     return len(shas)
 
 
